@@ -1,10 +1,11 @@
 using ForwardDiff, LinearAlgebra
-
+export rosenbrock
 function rosenbrock(x)
     # a = 1, b = 100
     return (1.0 - x[1])^2 + 100.0 * (x[2] - x[1]^2)^2
 end
 
+export circle_theorem_regularize
 function circle_theorem_regularize(x)
     n = size(x)[1]
     ϵ = zeros(n, n)
