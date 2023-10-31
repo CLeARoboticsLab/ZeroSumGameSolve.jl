@@ -5,7 +5,9 @@ function solve_zero_sum(j1, x, tol, total_iter, α=1.0)
     k = 0
     error = tol+1.0
     while k<total_iter && error>tol
+        # F = [∂j1/∂x1, ∂j1/∂x2] through ForwardDiff, then change sign for P2
         F = [-2*(1-x[1]) - 400*x[1]*(x[2]-x[1]^2), 200*(x[1]^2 - x[2])]  
+        # Calculate D i.e,e jacobian of F
         D = zeros(2, 2)
         D[1,1] = 2 - 400*x[2]+1200*x[1]^2
         D[1,2] = -400*x[1]
