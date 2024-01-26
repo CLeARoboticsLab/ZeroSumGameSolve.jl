@@ -1,8 +1,12 @@
 using ForwardDiff, LinearAlgebra
-export rosenbrock
+export rosenbrock, PaperExample
 function rosenbrock(x)
     # a = 1, b = 100
     return (1.0 - x[1])^2 + 100.0 * (x[2] - x[1]^2)^2
+end
+
+function PaperExample(x)
+    return exp(-0.01 * (x[1]^2 + x[2]^2)) * ((0.3 * x[1]^2 + x[2])^2 + (0.5 * x[2]^2 + x[1])^2)
 end
 
 export circle_theorem_regularize
@@ -42,9 +46,9 @@ function min_x_newton_step(func, guess, tol, total_iter, α=1.0)
     return x, func(x), ForwardDiff.gradient(func, x), ForwardDiff.hessian(func, x), k
 end
 
-point, value, grad, hess, iters = min_x_newton_step(rosenbrock, [-5.0, 10.0], 10e-6, 100000, 0.5)
-println("Point: ", point)
-println("Value: ", value)
-println("Gradient: ", grad)
-println("Hessian: ", hess)
-println("Iterations: ", iters)
+#point, value, grad, hess, iters = min_x_newton_step(rosenbrock, [-5.0, 10.0], 10e-6, 100000, 0.5)
+#println("Point: ", point)
+#println("Value: ", value)
+#println("Gradient: ", grad)
+#println("Hessian: ", hess)
+#println("Iterations: ", iters)
