@@ -1,36 +1,68 @@
 using ForwardDiff, LinearAlgebra
 using ZeroSumGameSolve
 
-function solve_zero_sum(j1, x, tol, total_iter, α=1.0)
+
+export solve_static_unconstrained_zero_sum
+function solve_static_unconstrained_zero_sum(guess, func, n_x, tol, max_iters, α=0.001)
+    x = guess
     k = 0
     error = tol+1.0
-    while k<total_iter && error>tol
-        # F = [∂j1/∂x1, ∂j1/∂x2] through ForwardDiff, then change sign for P2
-        F = [-2*(1-x[1]) - 400*x[1]*(x[2]-x[1]^2), 200*(x[1]^2 - x[2])]  
-        # Calculate D i.e,e jacobian of F
-        D = zeros(2, 2)
-        D[1,1] = 2 - 400*x[2]+1200*x[1]^2
-        D[1,2] = -400*x[1]
-        D[2,1] = 400*x[1]
-        D[2,2] = -200
-        hess_p1_reg = circle_theorem_regularize([D[1,1]])
-        hess_p2_reg = circle_theorem_regularize([-1.0*D[2,2]])
-        D[1,1] = hess_p1_reg[1,1]
-        D[2, 2] = -1.0*hess_p2_reg[1,1]
-        new_x = x - α*inv(D)*F
-        error = norm(new_x - x)
-        x = new_x
+    path = [x]
+    while k<max_iters && error>tol
+        grad = gradient(x, func)
+        hess = hessian(x, func)
+        update_step_grad = [grad[1:n_x], -1.0*grad[n_x+1:end]]
+        ∇_xx_reg = circle_theorem_regularize(hess[1:n_x, 1:n_x])
+        ∇_yy_reg_neg = circle_theorem_regularize(-1.0*hess[n_x+1:end, n_x+1:end])
+        update_step_hess = [∇_xx_reg hess[1:n_x, n_x+1:end]; -1.0*hess[n_x+1:end, 1:n_x] ∇_yy_reg_neg]
+        update_step_grad = SVector{size(update_step_grad)...}(update_step_grad)
+        update_step_hess = SMatrix{size(update_step_hess)...}(update_step_hess)
+        static_array_update = α*inv(update_step_hess) * update_step_grad
+        update = zeros(size(static_array_update))
+        for i in 1:size(static_array_update)[1]
+            update[i] = static_array_update[i][1]
+        end
+        x_new = x - update
+        push!(path, x_new)
+        error = norm(x_new - x)
+        x = x_new
         k += 1
     end
-    if k == total_iter
+    if k == max_iters
         println("Newton's method did not converge!")
+        println("Error: ", error)
     end
-    return x, j1(x), -j1(x), k
+    return x, func(x[1], x[2]), k, path
+    
 end
 
-Point, J_1, J_2, iters = solve_zero_sum(rosenbrock, [20, -30], 10e-5, 100000, 0.5)
-println("P1_Strat: ", Point[1])
-println("P2_Strat: ", Point[2])
-println("J1: ", J_1)
-println("J2: ", J_2)
-println("Iterations: ", iters)
+# export solve_zero_sum
+# function solve_zero_sum(guess, tol, total_iter, α=1.0)
+#     k = 0
+#     error = tol+1.0
+#     x = guess[1]
+#     y = guess[2]
+#     z = [x, y]
+#     while k<total_iter && error>tol
+#         # F = [∂j1/∂x1, ∂j1/∂x2] through ForwardDiff, then change sign for P2
+#         F = [x_gradient_function(x, y), -1.0*y_gradient_function(x, y)]
+#         # Calculate D i.e,e jacobian of F
+#         H = hessian_function(x, y)
+#         H_reg = circle_theorem_regularize(H)
+#         new_z = z - α*inv(H_reg)*F
+#         error = norm(new_z - z)
+#         z = new_z
+#         k += 1
+#     end
+#     if k == total_iter
+#         println("Newton's method did not converge!")
+#     end
+#     val = objective_function(z[1], z[2])
+#     return z, val, k
+# end
+
+# Point, J_1, iters = solve_zero_sum([20, -30], 10e-5, 100000, 0.1)
+# println("P1_Strat: ", Point[1])
+# println("P2_Strat: ", Point[2])
+# println("Objective Value ", J_1)
+# println("Iterations: ", iters)
