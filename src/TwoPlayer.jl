@@ -9,14 +9,8 @@ function solve_static_unconstrained_zero_sum(guess, func, n_x, tol, max_iters, �
     error = tol+1.0
     path = [x]
     while k<max_iters && error>tol
-        grad = gradient(x, func)
-        hess = hessian(x, func)
-        update_step_grad = [grad[1:n_x], -1.0*grad[n_x+1:end]]
-        ∇_xx_reg = circle_theorem_regularize(hess[1:n_x, 1:n_x])
-        ∇_yy_reg_neg = circle_theorem_regularize(-1.0*hess[n_x+1:end, n_x+1:end])
-        update_step_hess = [∇_xx_reg hess[1:n_x, n_x+1:end]; -1.0*hess[n_x+1:end, 1:n_x] ∇_yy_reg_neg]
-        update_step_grad = SVector{size(update_step_grad)...}(update_step_grad)
-        update_step_hess = SMatrix{size(update_step_hess)...}(update_step_hess)
+        update_step_grad = zero_sum_gradient(x, func, n_x)
+        update_step_hess = zero_sum_hessian(x, func, n_x)
         static_array_update = α*inv(update_step_hess) * update_step_grad
         update = zeros(size(static_array_update))
         for i in 1:size(static_array_update)[1]

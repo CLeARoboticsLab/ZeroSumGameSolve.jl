@@ -1,6 +1,6 @@
 using ZeroSumGameSolve
 
-guess = [1.0, 1.0]
+guess = [1.0, 2.0]
 tol = 10e-5
 max_iters = 100000
 α = 1.0
