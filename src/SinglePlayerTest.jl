@@ -20,7 +20,7 @@ function circle_theorem_regularize(x)
             ϵ[i, i] = r + abs(c)
         end
     end
-    return x + ϵ + 10*I(n)
+    return x + ϵ + 5.0*I(n)
 end
 
 function min_x_newton_step(func, guess, tol, total_iter, α=1.0)
