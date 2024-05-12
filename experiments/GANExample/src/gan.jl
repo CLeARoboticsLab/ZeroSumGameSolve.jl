@@ -1,3 +1,51 @@
+#================= Train GAN using standard way ==============================#
+
+function train_gan_standard(; set_up = construct_training_setup(), training_log_sample_size = 1000)
+    gan = setup_gan(set_up)
+    generator = gan.generator
+    discriminator = gan.discriminator
+    fixed_ϵ = rand(set_up.rng, Distributions.Normal(), gan.z_dim, training_log_sample_size) # fixed noise samples for tracking training loss
+    fixed_data = set_up.dataset[:, 1:training_log_sample_size] # fixed data samples for tracking training loss
+    generator_optimizer_setup = Optimisers.setup(set_up.training_config.optimizer, generator) # generator optimizer
+    discriminator_optimizer_setup = Optimisers.setup(set_up.training_config.optimizer, discriminator) # discriminator optimizer
+    losses = Vector{Float64}()
+    for epoch in 1:set_up.training_config.n_epochs
+        println("Epoch $epoch")
+        ii = 0
+        for mini_batch in set_up.data_batch_iterator
+            num_samples = size(mini_batch)[2]
+            if ii % (set_up.training_config.time_difference_k + 1) != 0
+                # update discriminator
+                ϵ = rand(set_up.rng, Distributions.Normal(), gan.z_dim, num_samples) # noise samples
+                fake_data = generator(ϵ)
+                # explicit style of gradient computation
+                grads = Zygote.gradient(discriminator) do model
+                    loss = get_discriminator_loss(model)
+                    loss(mini_batch, fake_data)
+                end
+                ∇m = grads[1]
+                discriminator_optimizer_setup, discriminator = Optimisers.update(discriminator_optimizer_setup, discriminator, ∇m)
+            else
+                # update generator
+                ϵ = rand(set_up.rng, Distributions.Normal(), gan.z_dim, num_samples) # noise samples
+                # explicit style of gradient computation
+                grads = Zygote.gradient(generator) do model
+                    loss = get_generator_loss(model, discriminator)
+                    loss(ϵ)
+                end
+                ∇m = grads[1]
+                generator_optimizer_setup, generator = Optimisers.update(generator_optimizer_setup, generator, ∇m)
+            end
+            ii += 1
+        end
+        current_loss = (sum(log.(discriminator(fixed_data) .+ 1e-6)) 
+        + sum(log.(1 .- discriminator(generator(fixed_ϵ)) .+ 1e-6))) / training_log_sample_size
+        @info "loss: $(current_loss)"
+        push!(losses, current_loss)
+    end
+    plot_loss_curve(losses)
+    plot_generated_samples(generator; set_up, gan.z_dim)
+end
 
 function get_generator_loss(generator, discriminator)
     function loss(ϵ)
