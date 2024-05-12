@@ -1,5 +1,8 @@
 using ForwardDiff, LinearAlgebra
 using ZeroSumGameSolve
+using ReverseDiff
+using CUDA
+using Zygote: Zygote
 
 
 export solve_static_unconstrained_zero_sum
