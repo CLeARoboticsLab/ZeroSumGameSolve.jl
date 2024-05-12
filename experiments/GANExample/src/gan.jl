@@ -1,3 +1,56 @@
+#================================= Train GAN using our zero sum solver ============================# 
+
+
+function train_gan_ours(; set_up = construct_training_setup(), training_log_sample_size = 1000)
+    # generator = JLD2.load("data/generator.jld2")["generator"]
+    # discriminator = JLD2.load("data/discriminator.jld2")["discriminator"]
+    gan = setup_gan(set_up)
+    generator = gan.generator
+    discriminator = gan.discriminator
+    fixed_ϵ = rand(set_up.rng, Distributions.Normal(), gan.z_dim, training_log_sample_size) # fixed noise samples for tracking training loss
+    fixed_data = set_up.dataset[:, 1:training_log_sample_size] # fixed data samples for tracking training loss
+    params_generator, reconstruct_generator = destructure(generator)
+    params_discriminator, reconstruct_discriminator = destructure(discriminator)
+    generator_optimizer_setup = Optimisers.setup(set_up.training_config.optimizer, params_generator) # generator optimizer
+    discriminator_optimizer_setup = Optimisers.setup(set_up.training_config.optimizer, params_discriminator) # discriminator optimizer
+    losses = Vector{Float64}()
+    for epoch in 1:set_up.training_config.n_epochs
+        println("Epoch $epoch")
+        ii = 0
+        for mini_batch in set_up.data_batch_iterator
+            num_samples = size(mini_batch)[2]
+            ϵ = rand(set_up.rng, Distributions.Normal(), gan.z_dim, num_samples) # noise samples
+            loss = get_objective_function_for_zero_sum_solve(generator, discriminator; ϵ, mini_batch) # loss function over the **mini_batch**
+            params_generator, reconstruct_generator = destructure(generator)
+            params_discriminator, reconstruct_discriminator = destructure(discriminator)
+            params_gan = vcat(params_generator, params_discriminator)
+            dim_params_generator = size(params_generator)[1]
+            # newton direction computation
+            zero_sum_sol = ZeroSumGameSolve.new_solve_static_unconstrained_zero_sum_GAN(params_gan, loss, dim_params_generator, 1e-7, 1, 1.0, epoch)
+            # direction_generator = deepcopy(zero_sum_sol[1][1:dim_params_generator] - params_generator)
+            # direction_discriminator = deepcopy(zero_sum_sol[1][(dim_params_generator + 1):end] - params_discriminator)
+
+            # update GAN parameters
+            # generator_optimizer_setup, params_generator = Optimisers.update(generator_optimizer_setup, params_generator, direction_generator)
+            # discriminator_optimizer_setup, params_discriminator = Optimisers.update(discriminator_optimizer_setup, params_discriminator, direction_discriminator)
+            generator = reconstruct_generator(zero_sum_sol[1][1:dim_params_generator])
+            discriminator = reconstruct_discriminator(zero_sum_sol[1][(dim_params_generator + 1):end])
+            ii += 1
+        end
+        current_loss = (sum(log.(discriminator(fixed_data) .+ 1e-6)) 
+        + sum(log.(1 .- discriminator(generator(fixed_ϵ)) .+ 1e-6))) / training_log_sample_size
+        @info "loss: $(current_loss)"
+        push!(losses, current_loss)
+        if epoch % 1000 == 0
+            plot_loss_curve(losses)
+            plot_generated_samples(generator; set_up, gan.z_dim)
+            jldsave("data/generator"*(now() |> string)*".jld2"; generator)
+            jldsave("data/discriminator"*(now() |> string)*".jld2"; discriminator)
+        end
+    end
+    plot_loss_curve(losses)
+    plot_generated_samples(generator; set_up, gan.z_dim)
+end
 
 function get_objective_function_for_zero_sum_solve(generator, discriminator; ϵ, mini_batch)
     params_generator, reconstruct_generator = destructure(generator)
