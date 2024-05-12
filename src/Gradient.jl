@@ -4,7 +4,7 @@ using ForwardDiff, StaticArrays
 export gradient
 function gradient(point, func)
     a = SVector{size(point)...}(point)
-    return ForwardDiff.gradient(x->func(x...), a)
+    return ReverseDiff.gradient(x->func(x...), a)
 end
 
 
@@ -14,7 +14,7 @@ end
 export hessian
 function hessian(point, func)
     a = SVector{size(point)...}(point)
-    return ForwardDiff.hessian(x->func(x...), a)
+    return ReverseDiff.hessian(x->func(x...), a)
 end
 
 
