@@ -1,3 +1,17 @@
+
+function get_objective_function_for_zero_sum_solve(generator, discriminator; ϵ, mini_batch)
+    params_generator, reconstruct_generator = destructure(generator)
+    params_discriminator, reconstruct_discriminator = destructure(discriminator)
+    dim_params_generator = size(params_generator)[1]
+    parameters = vcat(params_generator, params_discriminator)
+    function loss(parameters)
+        generator = reconstruct_generator(parameters[1:dim_params_generator])
+        discriminator = reconstruct_discriminator(parameters[(dim_params_generator + 1):end])
+        fake_data = generator(ϵ)
+        (sum(log.(discriminator(mini_batch) .+ 1e-6)) + sum(log.(1 .- discriminator(fake_data) .+ 1e-6))) / size(mini_batch)[2]
+    end
+end
+
 #================= Train GAN using standard way ==============================#
 
 function train_gan_standard(; set_up = construct_training_setup(), training_log_sample_size = 1000)
