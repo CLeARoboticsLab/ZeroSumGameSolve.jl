@@ -1,3 +1,18 @@
+
+function get_generator_loss(generator, discriminator)
+    function loss(ϵ)
+        generated_fake_data = generator(ϵ)
+        # sum(log.(1 .- discriminator(generated_fake_data) .+ 1e-6)) / size(ϵ)[2] # According to Goodfellow et al., use log(G(ϵ)) instead for improved gradient signal
+        - sum(log.(discriminator(generated_fake_data) .+ 1e-6)) / size(ϵ)[2]
+    end
+end
+
+function get_discriminator_loss(discriminator)
+    function loss(real_data, fake_data)
+        - (sum(log.(discriminator(real_data) .+ 1e-6)) + sum(log.(1 .- discriminator(fake_data) .+ 1e-6))) / size(real_data)[2]
+    end
+end
+
 #============================== Common infrastructure ===============================#
 
 
