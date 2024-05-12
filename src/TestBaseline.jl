@@ -16,6 +16,8 @@ sol3, value3, iters_taken3, path3 = new_solve_static_unconstrained_zero_sum(gues
 println("New Unconstrained Ours done")
 sol4, value4, iters_taken4, path4 = simultaneous_gda(guess, func, tol, max_iters, α)
 println("Simultaneous GDA done")
+sol5, value5, iters_taken5, path5 = new_regularization_solve_static_unconstrained_zero_sum(guess, func, n_x, tol, max_iters, α)
+println("New Regularization done")
 print(typeof(path))
 println("Mazumdar done")
 println("Solution: ", sol)
@@ -37,6 +39,11 @@ println("Solution: ", sol4)
 println("Value: ", value4)
 println("Iterations: ", iters_taken4)
 println("\n")
+println("New Regularization done")
+println("Solution: ", sol5)
+println("Value: ", value5)
+println("Iterations: ", iters_taken5)
+println("\n")
 
 xlims = [-50, 20]
 ylims = [-20, 20]
@@ -47,3 +54,4 @@ plot!([x[1] for x in path], [x[2] for x in path], label="Mazumdar", title="Mazum
 plot!([x[1] for x in path2], [x[2] for x in path2], label="Unconstrained Ours", show=true)
 plot!([x[1] for x in path3], [x[2] for x in path3], label="New Unconstrained Ours", show=true)
 plot!([x[1] for x in path4], [x[2] for x in path4], label="Simultaneous GDA", show=true)
+plot!([x[1] for x in path5], [x[2] for x in path5], label="New Regularization", show=true)

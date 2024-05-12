@@ -10,4 +10,5 @@ include("ExampleFunctions.jl")
 include("LimitingODE.jl")
 include("Projection.jl")
 include("Baseline.jl")
+include("Regularization.jl")
 end

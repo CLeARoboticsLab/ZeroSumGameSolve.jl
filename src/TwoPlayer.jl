@@ -60,6 +60,31 @@ function new_solve_static_unconstrained_zero_sum(guess, func, n_x, tol, max_iter
     return x, func(x[1], x[2]), k, path
 end
 
+export new_regularization_solve_static_unconstrained_zero_sum
+function new_regularization_solve_static_unconstrained_zero_sum(guess, func, n_x, tol, max_iters, α)
+    x = guess
+    k = 0
+    error = tol+1.0
+    path = [x]
+    while k<max_iters && error>tol
+        static_array_update = α*regularization(x, func, n_x)
+        update = zeros(size(static_array_update))
+        for i in 1:size(static_array_update)[1]
+            update[i] = static_array_update[i][1]
+        end
+        x_new = x - update
+        push!(path, x_new)
+        error = norm(x_new - x)
+        x = x_new
+        k += 1
+    end
+    if k == max_iters
+        println("Newton's method did not converge!")
+        println("Error: ", error)
+    end
+    return x, func(x[1], x[2]), k, path
+end
+
 export solve_static_constrained_zero_sum
 function solve_static_constrained_zero_sum(guess, func, n_x, tol, max_iters, α, xlims, ylims)
     x = guess
