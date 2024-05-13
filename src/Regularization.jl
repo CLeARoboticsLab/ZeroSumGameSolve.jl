@@ -2,9 +2,7 @@ using ForwardDiff, LinearAlgebra
 using ZeroSumGameSolve
 
 export regularization
-function regularization(x, func, n_x, tol=1e-8)
-    update_step_grad = zero_sum_gradient(x, func, n_x)
-    update_step_hess = zero_sum_hessian(x, func, n_x)
+function regularization(x, update_step_grad, update_step_hess, tol=1e-8)
     if norm(update_step_grad) < tol
         return zeros(size(update_step_grad))
     else
