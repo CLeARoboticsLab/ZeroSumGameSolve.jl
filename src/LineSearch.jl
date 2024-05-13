@@ -14,10 +14,15 @@ function norm_w(x, func)
 end
 
 export alpha
-function alpha(point, func, step, w, J, c)
+function alpha(point, func, step, w, J, c=1e-4)
     m = transpose(w)*J*step
     α = 1.0
-    while norm_w(point, func) - norm_w(point - α*step, func) < c*α*m
+    update = zeros(size(step))
+    for i in 1:size(step)[1]
+        update[i] = step[i][1]
+    end
+    point_new = point - α*update
+    while norm_w(point, func) - norm_w(point_new, func) < c*α*m
         α = 0.5*α
     end
 
