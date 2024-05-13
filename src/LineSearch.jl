@@ -1,8 +1,8 @@
 using ZeroSumGameSolve
 using LinearAlgebra
-# using ReverseDiff
-# using CUDA
-# using Zygote: Zygote
+using ReverseDiff
+using CUDA
+using Zygote: Zygote
 
 
 
