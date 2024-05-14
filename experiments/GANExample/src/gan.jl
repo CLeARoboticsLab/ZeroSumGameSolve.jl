@@ -26,6 +26,7 @@ function train_gan_ours(; set_up = construct_training_setup(), training_log_samp
             params_gan = vcat(params_generator, params_discriminator)
             dim_params_generator = size(params_generator)[1]
             # newton direction computation
+            println(epoch, " ", ii)
             zero_sum_sol = ZeroSumGameSolve.new_reg_GAN(params_gan, loss, dim_params_generator, 1e-7, 1, epoch)
             # direction_generator = deepcopy(zero_sum_sol[1][1:dim_params_generator] - params_generator)
             # direction_discriminator = deepcopy(zero_sum_sol[1][(dim_params_generator + 1):end] - params_discriminator)
@@ -41,7 +42,7 @@ function train_gan_ours(; set_up = construct_training_setup(), training_log_samp
         + sum(log.(1 .- discriminator(generator(fixed_ϵ)) .+ 1e-6))) / training_log_sample_size
         @info "loss: $(current_loss)"
         push!(losses, current_loss)
-        if epoch % 500 == 0
+        if epoch % 100 == 0
             plot_loss_curve(losses)
             plot_generated_samples(generator; set_up, gan.z_dim)
             jldsave("data/generator"*(now() |> string)*".jld2"; generator)

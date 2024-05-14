@@ -22,7 +22,7 @@ function alpha(point, func, step, w, J, c=1e-4)
         update[i] = step[i][1]
     end
     point_new = point - α*update
-    while norm_w(point, func) - norm_w(point_new, func) < c*α*m
+    while (norm_w(point, func) - norm_w(point_new, func) < c*α*m) && α >= 1e-8
         α = 0.5*α
     end
 
