@@ -1,7 +1,7 @@
 #================================= Train GAN using our zero sum solver ============================# 
 
 
-function train_gan_ours(; set_up = construct_training_setup(), training_log_sample_size = 1000, approach = "ours")
+function train_gan_zero_sum(; set_up = construct_training_setup(), training_log_sample_size = 1000, approach = "ours")
     # generator = JLD2.load("data/generator.jld2")["generator"]
     # discriminator = JLD2.load("data/discriminator.jld2")["discriminator"]
     gan = setup_gan(set_up)
