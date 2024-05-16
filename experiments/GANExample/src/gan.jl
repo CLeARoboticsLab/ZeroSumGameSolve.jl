@@ -28,7 +28,7 @@ function train_gan_zero_sum(; set_up = construct_training_setup(), training_log_
             # newton direction computation
             println(epoch, " ", ii)
             if approach == "ours"
-            zero_sum_sol = ZeroSumGameSolve.new_reg_GAN(params_gan, loss, dim_params_generator, 1e-7, 1, epoch)
+                zero_sum_sol = ZeroSumGameSolve.new_reg_GAN(params_gan, loss, dim_params_generator, 1e-7, 1, epoch)
             elseif approach == "mazumdar"
                 zero_sum_sol = ZeroSumGameSolve.GAN_mazumdar_two_timescale_approximation(params_gan, loss, dim_params_generator, 1e-7, 1, epoch)
             end
