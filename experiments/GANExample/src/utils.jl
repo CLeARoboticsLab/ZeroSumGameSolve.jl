@@ -1,11 +1,11 @@
-function plot_loss_curve(losses)
+function plot_loss_curve(losses; approach = "gda")
     fig = Makie.Figure()
     ax = Makie.Axis(fig[1, 1], title = "Training Loss Curve", xlabel = "Epoch", ylabel = "Loss")
     Makie.lines!(ax, Vector{Float64}(1:length(losses)), losses)
-    Makie.save("data/training_loss"*(now() |> string)*".png", fig)
+    Makie.save("data/"*approach*"_training_loss"*(now() |> string)*".png", fig)
 end
 
-function plot_generated_samples(generator; set_up, z_dim)
+function plot_generated_samples(generator; set_up, z_dim, approach = "gda")
     ϵ = rand(set_up.rng, Distributions.Normal(), z_dim, 10000) 
     generated_samples = generator(ϵ)
     fig = Makie.Figure(resolution = (1600, 800), fontsize = 35)
@@ -18,5 +18,5 @@ function plot_generated_samples(generator; set_up, z_dim)
     Makie.density!(ax, generated_samples |> vec, color = colors[2], strokearound = true, strokewidth = 3, 
         strokecolor = colorant"rgba(254, 38, 37, 1.0)", label = "GAN generated")
     Makie.axislegend(ax)
-    Makie.save("data/generated_samples"*(now() |> string)*".png", fig)
+    Makie.save("data/"*approach*"_generated_samples"*(now() |> string)*".png", fig)
 end
