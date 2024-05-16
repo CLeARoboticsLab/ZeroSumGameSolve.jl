@@ -46,12 +46,12 @@ function train_gan_zero_sum(; set_up = construct_training_setup(), training_log_
         + sum(log.(1 .- discriminator(generator(fixed_ϵ)) .+ 1e-6))) / training_log_sample_size
         @info "loss: $(current_loss)"
         push!(losses, current_loss)
-        if epoch % 100 == 0
-            plot_loss_curve(losses; approach)
-            plot_generated_samples(generator; set_up, gan.z_dim, approach)
-            jldsave("data/"*approach*"_generator"*(now() |> string)*".jld2"; generator)
-            jldsave("data/"*approach*"_discriminator"*(now() |> string)*".jld2"; discriminator)
-            jldsave("data/"*approach*"_losses"*(now() |> string)*".jld2"; losses)
+        if epoch % 1000 == 0
+            plot_loss_curve(losses; approach, epoch)
+            plot_generated_samples(generator; set_up, gan.z_dim, approach, epoch)
+            jldsave("data/"*approach*string(epoch)*"_generator"*(now() |> string)*".jld2"; generator)
+            jldsave("data/"*approach*string(epoch)*"_discriminator"*(now() |> string)*".jld2"; discriminator)
+            jldsave("data/"*approach*string(epoch)*"_losses"*(now() |> string)*".jld2"; losses)
         end
     end
     plot_loss_curve(losses; approach)
