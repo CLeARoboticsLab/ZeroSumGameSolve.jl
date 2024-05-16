@@ -150,10 +150,6 @@ struct GAN
 end
 
 function construct_training_setup()
-    function decoder_gt(z)
-        tanh.(1.5z)
-    end
-
     rng = Random.MersenneTwister(1)
 
     training_config = (;
@@ -165,11 +161,17 @@ function construct_training_setup()
         time_difference_k = 3, # difference of the update frequency between the generator and the discriminator
     )
 
-    dims = (; dim_x = 1, dim_hidden = 8, dim_z = 1) # dim_x: data dimension dim_z: 
+    dims = (; dim_x = 2, dim_hidden = 2, dim_z = 2) # dim_x: data dimension dim_z: 
     # construct dataset
     # dataset = randn(rng, dims.dim_z, training_config.n_datapoints) |> decoder_gt |> training_config.device
-    sample_distribution = MixtureModel(Normal, [(-3, 1), (3, 1)])
-    dataset = rand(rng, sample_distribution, dims.dim_z, training_config.n_datapoints) |> training_config.device
+    angle_interval = 2*π / 8
+    radius = 1
+    sample_distributions = map(1:8) do ii
+        θ = (ii - 1) * angle_interval
+        MvNormal([radius * cos(θ), radius * sin(θ)], (1e-4) .* I(2))
+    end
+    sample_distribution = MixtureModel(MvNormal[sample_distributions[ii] for ii in 1:length(sample_distributions)])
+    dataset = rand(rng, sample_distribution, training_config.n_datapoints) |> training_config.device
     data_batch_iterator = Flux.Data.DataLoader(dataset; training_config.batchsize, shuffle = true, rng)
 
     (; rng, training_config, dims, dataset, data_batch_iterator)

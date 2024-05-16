@@ -12,14 +12,14 @@ end
 function plot_generated_samples(generator; set_up, z_dim, approach = "gda", epoch = nothing)
     ϵ = rand(set_up.rng, Distributions.Normal(), z_dim, 10000) 
     generated_samples = generator(ϵ)
-    fig = Makie.Figure(resolution = (1600, 800), fontsize = 35)
+    fig = Makie.Figure(resolution = (1200, 1200), fontsize = 35)
     colors = [colorant"rgba(105, 105, 105, 0.65)", colorant"rgba(254, 38, 37, 0.65)"]
     ax = Makie.Axis(fig[1, 1], title="ground truth vs. learned distribution", 
-        xlabel = "data value", ylabel = "probability density", 
+        xlabel = "x", ylabel = "y", 
         spinewidth=3, xlabelsize = 40, ylabelsize = 40)
-    Makie.density!(ax, set_up.dataset |> vec, color = colors[1], strokearound = true, strokewidth = 3, 
+    Makie.scatter!(ax, set_up.dataset[1, :], set_up.dataset[2, :], color = colors[1], strokearound = true, strokewidth = 3, 
         strokecolor = colorant"rgba(105, 105, 105, 1.0)", label = "ground truth")
-    Makie.density!(ax, generated_samples |> vec, color = colors[2], strokearound = true, strokewidth = 3, 
+    Makie.scatter!(ax, generated_samples[1, :], generated_samples[2, :], color = colors[2], strokearound = true, strokewidth = 3, 
         strokecolor = colorant"rgba(254, 38, 37, 1.0)", label = "GAN generated")
     Makie.axislegend(ax)
     if !isnothing(epoch)
@@ -28,3 +28,5 @@ function plot_generated_samples(generator; set_up, z_dim, approach = "gda", epoc
         Makie.save("data/"*approach*"_generated_samples"*(now() |> string)*".png", fig)
     end
 end
+
+# TODO: plot kernel density estimate to visualize: https://stackoverflow.com/questions/67292344/how-to-get-the-value-of-a-kernel-density-estimate-in-julia
