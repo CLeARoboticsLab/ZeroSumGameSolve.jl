@@ -154,14 +154,14 @@ function construct_training_setup()
 
     training_config = (;
         optimizer = Optimisers.Adam(0.0001, (0.9, 0.999), 1.0e-8),
-        n_epochs = 10000,
+        n_epochs = 20000,
         batchsize = 128,
         n_datapoints = 10_000,
         device = cpu,
         time_difference_k = 3, # difference of the update frequency between the generator and the discriminator
     )
 
-    dims = (; dim_x = 2, dim_hidden = 2, dim_z = 2) # dim_x: data dimension dim_z: 
+    dims = (; dim_x = 2, dim_hidden = 10, dim_z = 4) # dim_x: data dimension dim_z: 
     # construct dataset
     # dataset = randn(rng, dims.dim_z, training_config.n_datapoints) |> decoder_gt |> training_config.device
     angle_interval = 2*π / 8
