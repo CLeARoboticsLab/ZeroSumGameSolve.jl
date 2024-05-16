@@ -1,5 +1,9 @@
 #================================= Train GAN using our zero sum solver ============================# 
 
+function train_zero_sum()
+    train_gan_zero_sum(; approach = "mazumdar")
+    train_gan_zero_sum(; approach = "ours")
+end
 
 function train_gan_zero_sum(; set_up = construct_training_setup(), training_log_sample_size = 1000, approach = "ours")
     # generator = JLD2.load("data/generator.jld2")["generator"]
@@ -118,6 +122,13 @@ function train_gan_standard(; set_up = construct_training_setup(), training_log_
         + sum(log.(1 .- discriminator(generator(fixed_ϵ)) .+ 1e-6))) / training_log_sample_size
         @info "loss: $(current_loss)"
         push!(losses, current_loss)
+        if epoch % 1000 == 0
+            plot_loss_curve(losses; epoch)
+            plot_generated_samples(generator; set_up, gan.z_dim, epoch)
+            jldsave("data/gda"*string(epoch)*"_generator"*(now() |> string)*".jld2"; generator)
+            jldsave("data/gda"*string(epoch)*"_discriminator"*(now() |> string)*".jld2"; discriminator)
+            jldsave("data/gda"*string(epoch)*"_losses"*(now() |> string)*".jld2"; losses)
+        end
     end
     plot_loss_curve(losses)
     plot_generated_samples(generator; set_up, gan.z_dim)
