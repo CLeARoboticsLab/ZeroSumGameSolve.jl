@@ -47,10 +47,14 @@ function train_gan_ours(; set_up = construct_training_setup(), training_log_samp
             plot_generated_samples(generator; set_up, gan.z_dim)
             jldsave("data/generator"*(now() |> string)*".jld2"; generator)
             jldsave("data/discriminator"*(now() |> string)*".jld2"; discriminator)
+            jldsave("data/losses"*(now() |> string)*".jld2"; losses)
         end
     end
     plot_loss_curve(losses)
     plot_generated_samples(generator; set_up, gan.z_dim)
+    jldsave("data/generator"*(now() |> string)*".jld2"; generator)
+    jldsave("data/discriminator"*(now() |> string)*".jld2"; discriminator)
+    jldsave("data/losses"*(now() |> string)*".jld2"; losses)
 end
 
 function get_objective_function_for_zero_sum_solve(generator, discriminator; ϵ, mini_batch)
@@ -113,6 +117,9 @@ function train_gan_standard(; set_up = construct_training_setup(), training_log_
     end
     plot_loss_curve(losses)
     plot_generated_samples(generator; set_up, gan.z_dim)
+    jldsave("data/generator"*(now() |> string)*".jld2"; generator)
+    jldsave("data/discriminator"*(now() |> string)*".jld2"; discriminator)
+    jldsave("data/losses"*(now() |> string)*".jld2"; losses)
 end
 
 function get_generator_loss(generator, discriminator)
@@ -147,14 +154,14 @@ function construct_training_setup()
 
     training_config = (;
         optimizer = Optimisers.Adam(0.0001, (0.9, 0.999), 1.0e-8),
-        n_epochs = 50000,
+        n_epochs = 5,
         batchsize = 128,
         n_datapoints = 10_000,
         device = cpu,
         time_difference_k = 3, # difference of the update frequency between the generator and the discriminator
     )
 
-    dims = (; dim_x = 1, dim_hidden = 8, dim_z = 1) # dim_x: data dimension dim_z: 
+    dims = (; dim_x = 1, dim_hidden = 2, dim_z = 1) # dim_x: data dimension dim_z: 
     # construct dataset
     # dataset = randn(rng, dims.dim_z, training_config.n_datapoints) |> decoder_gt |> training_config.device
     sample_distribution = MixtureModel(Normal, [(-3, 1), (3, 1)])
