@@ -99,7 +99,7 @@ function GAN_mazumdar_two_timescale_approximation(guess, func, n_x, tol, max_ite
         end
         J = zero_sum_hessian(hessian, n_x)
         J_t = transpose(J)
-        λ = xi_1*(1-exp(-1.0*(LinearAlgebra.norm(w)^2)))*LinearAlgebra.I(n_x)
+        λ = xi_1*(1-exp(-1.0*(LinearAlgebra.norm(w)^2)))*LinearAlgebra.I(length(guess))
         update = exp(-xi_2*(LinearAlgebra.norm(J_t*v)^2))J_t*v
         w_update = zeros(size(w))
         for i in 1:size(w)[1]
