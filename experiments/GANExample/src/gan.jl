@@ -158,7 +158,7 @@ function construct_training_setup()
 
     training_config = (;
         optimizer = Optimisers.Adam(0.0001, (0.9, 0.999), 1.0e-8),
-        n_epochs = 5000,
+        n_epochs = 10000,
         batchsize = 128,
         n_datapoints = 10_000,
         device = cpu,
