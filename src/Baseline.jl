@@ -79,6 +79,7 @@ function GAN_mazumdar_two_timescale_approximation(guess, func, n_x, tol, max_ite
         update_step_hess = [∇_xx_reg hess[1:n_x, n_x+1:end]; -1.0*hess[n_x+1:end, 1:n_x] ∇_yy_reg_neg]
         update_step_hess = SMatrix{size(update_step_hess)...}(update_step_hess)
         return update_step_hess
+    end
     x = guess
     v = zeros(size(x))
     k = 0
