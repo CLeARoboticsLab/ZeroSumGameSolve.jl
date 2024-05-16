@@ -1,7 +1,7 @@
 #================================= Train GAN using our zero sum solver ============================# 
 
 
-function train_gan_ours(; set_up = construct_training_setup(), training_log_sample_size = 1000)
+function train_gan_zero_sum(; set_up = construct_training_setup(), training_log_sample_size = 1000, approach = "ours")
     # generator = JLD2.load("data/generator.jld2")["generator"]
     # discriminator = JLD2.load("data/discriminator.jld2")["discriminator"]
     gan = setup_gan(set_up)
@@ -26,7 +26,12 @@ function train_gan_ours(; set_up = construct_training_setup(), training_log_samp
             params_gan = vcat(params_generator, params_discriminator)
             dim_params_generator = size(params_generator)[1]
             # newton direction computation
-            zero_sum_sol = ZeroSumGameSolve.new_solve_static_unconstrained_zero_sum_GAN(params_gan, loss, dim_params_generator, 1e-7, 1, 1.0, epoch)
+            println(epoch, " ", ii)
+            if approach == "ours"
+                zero_sum_sol = ZeroSumGameSolve.new_reg_GAN(params_gan, loss, dim_params_generator, 1e-7, 1, epoch)
+            elseif approach == "mazumdar"
+                zero_sum_sol = ZeroSumGameSolve.GAN_mazumdar_two_timescale_approximation(params_gan, loss, dim_params_generator, 1e-7, 1, epoch)
+            end
             # direction_generator = deepcopy(zero_sum_sol[1][1:dim_params_generator] - params_generator)
             # direction_discriminator = deepcopy(zero_sum_sol[1][(dim_params_generator + 1):end] - params_discriminator)
 
@@ -42,14 +47,18 @@ function train_gan_ours(; set_up = construct_training_setup(), training_log_samp
         @info "loss: $(current_loss)"
         push!(losses, current_loss)
         if epoch % 1000 == 0
-            plot_loss_curve(losses)
-            plot_generated_samples(generator; set_up, gan.z_dim)
-            jldsave("data/generator"*(now() |> string)*".jld2"; generator)
-            jldsave("data/discriminator"*(now() |> string)*".jld2"; discriminator)
+            plot_loss_curve(losses; approach, epoch)
+            plot_generated_samples(generator; set_up, gan.z_dim, approach, epoch)
+            jldsave("data/"*approach*string(epoch)*"_generator"*(now() |> string)*".jld2"; generator)
+            jldsave("data/"*approach*string(epoch)*"_discriminator"*(now() |> string)*".jld2"; discriminator)
+            jldsave("data/"*approach*string(epoch)*"_losses"*(now() |> string)*".jld2"; losses)
         end
     end
-    plot_loss_curve(losses)
-    plot_generated_samples(generator; set_up, gan.z_dim)
+    plot_loss_curve(losses; approach)
+    plot_generated_samples(generator; set_up, gan.z_dim, approach)
+    jldsave("data/"*approach*"_generator"*(now() |> string)*".jld2"; generator)
+    jldsave("data/"*approach*"_discriminator"*(now() |> string)*".jld2"; discriminator)
+    jldsave("data/"*approach*"_losses"*(now() |> string)*".jld2"; losses)
 end
 
 function get_objective_function_for_zero_sum_solve(generator, discriminator; ϵ, mini_batch)
@@ -112,6 +121,9 @@ function train_gan_standard(; set_up = construct_training_setup(), training_log_
     end
     plot_loss_curve(losses)
     plot_generated_samples(generator; set_up, gan.z_dim)
+    jldsave("data/gda_generator"*(now() |> string)*".jld2"; generator)
+    jldsave("data/gda_discriminator"*(now() |> string)*".jld2"; discriminator)
+    jldsave("data/gda_losses"*(now() |> string)*".jld2"; losses)
 end
 
 function get_generator_loss(generator, discriminator)
@@ -146,7 +158,7 @@ function construct_training_setup()
 
     training_config = (;
         optimizer = Optimisers.Adam(0.0001, (0.9, 0.999), 1.0e-8),
-        n_epochs = 50000,
+        n_epochs = 10000,
         batchsize = 128,
         n_datapoints = 10_000,
         device = cpu,
