@@ -13,6 +13,7 @@ using CUDA
 using ZeroSumGameSolve: ZeroSumGameSolve
 using Dates: now
 using JLD2: JLD2, jldsave
+using LinearAlgebra: I
 
 include("gan.jl")
 include("utils.jl")
