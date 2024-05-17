@@ -1,8 +1,8 @@
 #================================= Train GAN using our zero sum solver ============================# 
 
 function train_zero_sum()
+    train_gan_zero_sum(; approach = "ours_optimizer")
     train_gan_zero_sum(; approach = "mazumdar")
-    train_gan_zero_sum(; approach = "ours")
 end
 
 function train_gan_zero_sum(; set_up = construct_training_setup(), training_log_sample_size = 1000, approach = "ours")
@@ -21,6 +21,8 @@ function train_gan_zero_sum(; set_up = construct_training_setup(), training_log_
     if approach == "mazumdar"
         xy_optimizer_setup = Optimisers.setup(Optimisers.RMSProp(2e-4, 0.9, 1e-8), vcat(params_generator, params_discriminator))
         v_optimizer_setup = Optimisers.setup(Optimisers.RMSProp(1e-5, 0.9, 1e-8), zeros(vcat(params_generator, params_discriminator) |> length))
+    elseif approach == "ours_optimizer"
+        x_optimizer_setup = Optimisers.setup(Optimisers.RMSProp(1.0, 0.9, 1e-8), vcat(params_generator, params_discriminator))
     end
     for epoch in 1:set_up.training_config.n_epochs
         println("Epoch $epoch")
@@ -37,6 +39,8 @@ function train_gan_zero_sum(; set_up = construct_training_setup(), training_log_
             println(epoch, " ", ii)
             if approach == "ours"
                 zero_sum_sol = ZeroSumGameSolve.new_reg_GAN(params_gan, loss, dim_params_generator, 1e-7, 1, epoch)
+            elseif approach == "ours_optimizer"
+                zero_sum_sol = ZeroSumGameSolve.new_reg_GAN_optimizer!(params_gan, loss, dim_params_generator, 1e-7, 1, epoch; x_optimizer_setup)
             elseif approach == "mazumdar"
                 zero_sum_sol = ZeroSumGameSolve.GAN_mazumdar_two_timescale_approximation!(params_gan, loss, dim_params_generator, 1e-7, 1, epoch; xy_optimizer_setup, v_optimizer_setup)
             end
@@ -173,7 +177,7 @@ function construct_training_setup()
 
     training_config = (;
         optimizer = Optimisers.Adam(0.0001, (0.9, 0.999), 1.0e-8),
-        n_epochs = 10000,
+        n_epochs = 30000,
         batchsize = 128,
         n_datapoints = 10_000,
         device = cpu,
