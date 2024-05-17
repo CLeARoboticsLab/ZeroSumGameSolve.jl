@@ -179,7 +179,7 @@ function construct_training_setup()
     dims = (; dim_x = 1, dim_hidden = 8, dim_z = 1) # dim_x: data dimension dim_z: 
     # construct dataset
     # dataset = randn(rng, dims.dim_z, training_config.n_datapoints) |> decoder_gt |> training_config.device
-    sample_distribution = MixtureModel(Normal, [(-3, 1), (3, 1)])
+    sample_distribution = MixtureModel(Normal, [(-3, 0.2), (-1, 0.2), (1, 0.2), (3, 0.2)])
     dataset = rand(rng, sample_distribution, dims.dim_z, training_config.n_datapoints) |> training_config.device
     data_batch_iterator = Flux.Data.DataLoader(dataset; training_config.batchsize, shuffle = true, rng)
 
