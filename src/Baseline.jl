@@ -67,7 +67,7 @@ function simultaneous_gda(guess, func, tol, max_iters, α)
     return x, func(x[1], x[2]), k, path
 end
 
-export GAN_mazumdar_two_timescale_approximation
+export GAN_mazumdar_two_timescale_approximation!
 function GAN_mazumdar_two_timescale_approximation!(guess, func, n_x, tol, max_iters, epoch, gamma_1=0.004, gamma_2=0.005, xi_1=1e-4, xi_2=1e-3; xy_optimizer_setup, v_optimizer_setup)
     function zero_sum_gradient(grads, n_x)
         update_step_grad = vcat(grads[1:n_x], -1.0*grads[n_x+1:end])
