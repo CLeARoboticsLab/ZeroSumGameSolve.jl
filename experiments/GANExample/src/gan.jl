@@ -18,6 +18,10 @@ function train_gan_zero_sum(; set_up = construct_training_setup(), training_log_
     generator_optimizer_setup = Optimisers.setup(set_up.training_config.optimizer, params_generator) # generator optimizer
     discriminator_optimizer_setup = Optimisers.setup(set_up.training_config.optimizer, params_discriminator) # discriminator optimizer
     losses = Vector{Float64}()
+    if approach == "mazumdar"
+        xy_optimizer_setup = Optimisers.setup(Optimisers.RMSProp(2e-4, 0.9, 1e-8), vcat(params_generator, params_discriminator))
+        v_optimizer_setup = Optimisers.setup(Optimisers.RMSProp(1e-5, 0.9, 1e-8), zeros(vcat(params_generator, params_discriminator) |> length))
+    end
     for epoch in 1:set_up.training_config.n_epochs
         println("Epoch $epoch")
         ii = 0
@@ -34,7 +38,7 @@ function train_gan_zero_sum(; set_up = construct_training_setup(), training_log_
             if approach == "ours"
                 zero_sum_sol = ZeroSumGameSolve.new_reg_GAN(params_gan, loss, dim_params_generator, 1e-7, 1, epoch)
             elseif approach == "mazumdar"
-                zero_sum_sol = ZeroSumGameSolve.GAN_mazumdar_two_timescale_approximation(params_gan, loss, dim_params_generator, 1e-7, 1, epoch)
+                zero_sum_sol = ZeroSumGameSolve.GAN_mazumdar_two_timescale_approximation!(params_gan, loss, dim_params_generator, 1e-7, 1, epoch; xy_optimizer_setup, v_optimizer_setup)
             end
             # direction_generator = deepcopy(zero_sum_sol[1][1:dim_params_generator] - params_generator)
             # direction_discriminator = deepcopy(zero_sum_sol[1][(dim_params_generator + 1):end] - params_discriminator)

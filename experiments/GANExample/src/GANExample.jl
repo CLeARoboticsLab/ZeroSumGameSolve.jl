@@ -1,6 +1,6 @@
 module GANExample
 
-using Flux: Flux, gradient, Optimise.update!, params, glorot_uniform, Dense, Optimise.Adam, NNlib.relu, NNlib.gelu, NNlib.elu, NNlib.sigmoid,
+using Flux: Flux, gradient, Optimise.update!, params, glorot_uniform, Dense, Optimise.Adam, NNlib.relu, NNlib.gelu, NNlib.elu, NNlib.sigmoid, NNlib.tanh,
 Chain, @functor, train!, cpu, gpu, softplus, params, BatchNorm, normalise
 using Zygote: Zygote
 using Optimisers: Optimisers, setup, update, destructure
