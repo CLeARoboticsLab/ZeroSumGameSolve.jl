@@ -8,6 +8,7 @@ end
 function train_gan_zero_sum(; set_up = construct_training_setup(), training_log_sample_size = 1000, approach = "ours")
     # generator = JLD2.load("data/generator.jld2")["generator"]
     # discriminator = JLD2.load("data/discriminator.jld2")["discriminator"]
+    # losses = JLD2.load("data/losses.jld2")["losses"]
     gan = setup_gan(set_up)
     generator = gan.generator
     discriminator = gan.discriminator
