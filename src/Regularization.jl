@@ -80,7 +80,7 @@ function regularization_SecOND_GAN(update_step_grad, update_step_hess, n_x, ball
         beta = [b1*LinearAlgebra.I(n_x) zeros(n_x, n_y); zeros(n_y, n_x) b2*LinearAlgebra.I(n_y)]
         return inv(circle_theorem_regularize(transpose(update_step_hess)*update_step_hess*(update_step_hess+transpose(update_step_hess)))+ beta) * transpose(update_step_hess)* update_step_grad
     else
-        return inv(transpose(update_step_hess)*update_step_hess + 0.1*LinearAlgebra.I(2))*transpose(update_step_hess)*update_step_grad
+        return inv(transpose(update_step_hess)*update_step_hess + 0.1*LinearAlgebra.I(size(update_step_hess)[1]))*transpose(update_step_hess)*update_step_grad
     end
     
 end
