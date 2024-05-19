@@ -25,7 +25,7 @@ end
 export mazumdar_two_timescale_approximation
 function mazumdar_two_timescale_approximation(guess, func, tol, max_iters, α)
     x = guess
-    v = [1000., -1000.]
+    v = [100., 100.]
     k = 0
     error = tol+1.0
     path = [x]
@@ -123,4 +123,31 @@ function GAN_mazumdar_two_timescale_approximation(guess, func, n_x, tol, max_ite
         k = k + 1
     end
     return x, func(x), k, path
+end
+
+export cesp
+function cesp(guess, func, tol, max_iters, α)
+    x = guess
+    k = 0
+    error = tol+1.0
+    path = [x]
+    while k<max_iters && error>tol
+        w = symbolic_zero_gradient(x[1], x[2])
+        J = symbolic_zero_hessian(x[1], x[2])
+        v1 = 0.0
+        v2 = 0.0
+        if J[1, 1] < 0
+            v1 = 0.05*sign(w[1])*J[1, 1]
+        end
+        if J[2, 2] > 0
+            v2 = 0.05*sign(-1.0*w[2])*J[2, 2]
+        end
+        update = -1.0*w
+        x_new = x + α*update + [v1; v2]
+        error = norm(x_new - x)
+        x = x_new
+        push!(path, x)
+        k = k + 1
+    end
+    return x, func(x[1], x[2]), k, path
 end
