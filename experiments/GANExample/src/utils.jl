@@ -48,27 +48,30 @@ function plot_gan_example_comparison(;
     epoch_interval = 3000,
     img_per_row = 5,
     solver_names = ["gda", "ours_optimizer", "mazumdar"],
+    mapped_solver_names = ["GDA", "SecOND", "LSS"],
     set_up = construct_training_setup(),
 )
     ϵ = rand(set_up.rng, Distributions.Normal(), set_up.dims.dim_z, 10000) 
-    epochs = map(1:img_per_row) do ii
+    epochs = map(2:img_per_row) do ii
         ii * epoch_interval
     end
 
     colors = [colorant"rgba(105, 105, 105, 0.65)", colorant"rgba(254, 38, 37, 0.65)"]
 
-    fig = Makie.Figure(; size = (img_per_row * 800, length(solver_names) * 400), fontsize = 35)
+    fig = Makie.Figure(; size = (img_per_row * 475, length(solver_names) * 500), fontsize = 35)
     for ii in 1:length(solver_names)
         approach = solver_names[ii]
+        mapped_approach = mapped_solver_names[ii]
         for jj in 1:length(epochs)
             epoch = epochs[jj]
             generator = load_file_from_partial_name(approach * string(epoch) * "_generator")["generator"]
             discriminator = load_file_from_partial_name(approach * string(epoch) * "_discriminator")["discriminator"]
             generated_samples = generator(ϵ)
 
-            ax = Makie.Axis(fig[ii, jj], title=approach * " " * string(epoch) * " iterations", 
-                xlabel = "data value", ylabel = "probability density", 
+            ax = Makie.Axis(fig[ii, jj], title= "$mapped_approach : " * string(epoch) * " iters.", 
+                xlabel = "data value", ylabel = "prob. density", 
                 spinewidth=3, xlabelsize = 40, ylabelsize = 40)
+            ax.titlesize = 45
             Makie.density!(ax, set_up.dataset |> vec, color = colors[1], strokearound = true, strokewidth = 3, 
                 strokecolor = colorant"rgba(105, 105, 105, 1.0)", label = "ground truth")
             Makie.density!(ax, generated_samples |> vec, color = colors[2], strokearound = true, strokewidth = 3, 
@@ -76,7 +79,10 @@ function plot_gan_example_comparison(;
             # Makie.axislegend(ax) 
         end
     end
-    Makie.save(directory * "gan_comparison_"*string(epoch_interval)*"_"*string(img_per_row)*".png", fig)
+    Makie.rowgap!(fig.layout, 1, Relative(0.1))
+    Makie.rowgap!(fig.layout, 2, Relative(0.1))
+    # Makie.save(directory * "gan_comparison_"*string(epoch_interval)*"_"*string(img_per_row)*".png", fig)
+    Makie.save(directory * "gan_comparison.png", fig)
 end
 
 function plot_gan_comparison()
