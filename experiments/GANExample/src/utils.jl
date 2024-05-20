@@ -76,5 +76,15 @@ function plot_gan_example_comparison(;
             # Makie.axislegend(ax) 
         end
     end
-    Makie.save(directory * "gan_comparison.png", fig)
+    Makie.save(directory * "gan_comparison_"*string(epoch_interval)*"_"*string(img_per_row)*".png", fig)
+end
+
+function plot_gan_comparison()
+    img_per_row_lst = [7]
+    epoch_interval_lst = [3000]
+    for img_per_row in img_per_row_lst
+        for epoch_interval in epoch_interval_lst
+            plot_gan_example_comparison(; img_per_row, epoch_interval)
+        end
+    end
 end
