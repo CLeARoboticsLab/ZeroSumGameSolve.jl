@@ -23,7 +23,7 @@ function train_gan_zero_sum(; set_up = construct_training_setup(), training_log_
         xy_optimizer_setup = Optimisers.setup(Optimisers.RMSProp(2e-4, 0.9, 1e-8), vcat(params_generator, params_discriminator))
         v_optimizer_setup = Optimisers.setup(Optimisers.RMSProp(1e-5, 0.9, 1e-8), zeros(vcat(params_generator, params_discriminator) |> length))
     elseif approach == "ours_optimizer"
-        x_optimizer_setup = Optimisers.setup(Optimisers.RMSProp(1.0, 0.9, 1e-8), vcat(params_generator, params_discriminator))
+        x_optimizer_setup = Optimisers.setup(Optimisers.RMSProp(2e-4, 0.9, 1e-8), vcat(params_generator, params_discriminator))
     end
     for epoch in 1:set_up.training_config.n_epochs
         println("Epoch $epoch")
