@@ -1,12 +1,12 @@
 using ZeroSumGameSolve
 using Plots
-# guess = [-15.0, -2.5]
-guess = [-4.0, -9.0]
-tol = 10e-8
-ball_tol = 1e-5
-max_iters = 100000
+guess = [-10., -5.1]
+# guess = [-4.0, -9.0]
+tol = 10e-5
+ball_tol = 1e-2
+max_iters = 50000
 # α = 0.001
-α = 0.01
+α = 0.0001
 n_x = 1
 func = twodimexample
 sol, value, iters_taken, path = mazumdar_two_timescale_approximation(guess, func, tol, max_iters, α)
@@ -15,11 +15,11 @@ sol2, value2, iters_taken2, path2 = g_d(guess, func, n_x, tol, max_iters, α)
 println("g_d done")
 sol3, value3, iters_taken3, path3 = SecOND(guess, func, n_x, tol, max_iters, α, ball_tol)
 println("SecOND done")
-sol4, value4, iters_taken4, path4 = simultaneous_gda(guess, func, tol, max_iters, α)
+sol4, value4, iters_taken4, path4 = toy_simultaneous_gda(guess, func, tol, max_iters, α)
 println("Simultaneous GDA done")
 sol5, value5, iters_taken5, path5 = new_regularization_solve_static_unconstrained_zero_sum(guess, func, n_x, tol, max_iters, α)
 println("New Regularization done")
-sol6, value6, iters_taken6, path6 = cesp(guess, func, tol, max_iters, α)
+sol6, value6, iters_taken6, path6 = toy_cesp(guess, func, tol, max_iters, α)
 print(typeof(path))
 println("Mazumdar done")
 println("Solution: ", sol)

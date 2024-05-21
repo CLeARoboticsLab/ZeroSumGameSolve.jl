@@ -235,7 +235,7 @@ function SecOND(guess, func, n_x, tol, max_iters, α, ball_tol=1e-8)
     path = [x]
     while k<max_iters && error>tol
         update_step_grad = zero_sum_gradient(x, func, n_x)
-        update_step_hess = zero_sum_hessian(x, func, n_x)
+        update_step_hess = zero_sum_true_hessian(x, func, n_x)
         static_array_update, outside_ball = regularization_SecOND(update_step_grad, update_step_hess, ball_tol)
         update = zeros(size(static_array_update))
         for i in 1:size(static_array_update)[1]
@@ -268,7 +268,7 @@ function g_d(guess, func, n_x, tol, max_iters, α)
     path = [x]
     while k<max_iters && error>tol
         update_step_grad = zero_sum_gradient(x, func, n_x)
-        update_step_hess = zero_sum_hessian(x, func, n_x)
+        update_step_hess = zero_sum_true_hessian(x, func, n_x)
         static_array_update = regularization_g_d(update_step_grad, update_step_hess)
         update = zeros(size(static_array_update))
         for i in 1:size(static_array_update)[1]
@@ -287,6 +287,75 @@ function g_d(guess, func, n_x, tol, max_iters, α)
     end
     return x, func(x[1], x[2]), k, path 
 end
+
+export toy_SecOND
+function toy_SecOND(guess, func, n_x, tol, max_iters, α, ball_tol=1e-2)
+    x = guess
+    k = 0
+    error = tol+1.0
+    path = [x]
+    converged = true
+    while k<max_iters && error>tol
+        update_step_grad = zero_sum_gradient(x, func, n_x)
+        update_step_hess = zero_sum_true_hessian(x, func, n_x)
+        static_array_update, outside_ball = regularization_SecOND(update_step_grad, update_step_hess, ball_tol)
+        update = zeros(size(static_array_update))
+        for i in 1:size(static_array_update)[1]
+            update[i] = static_array_update[i][1]
+        end
+        if outside_ball
+            α_line = alpha_toy(x, func, update, update_step_grad, update_step_hess)
+            update = α_line*update
+        else
+            update = α*update
+        end
+        x_new = x - update
+        push!(path, x_new)
+        error = norm(x_new - x)
+        x = x_new
+        k += 1
+    end
+    if k==max_iters
+        println("SecOND did not converge!")
+        println("Error: ", error)
+        converged = false
+    end
+    return x, func(x[1], x[2]), k, path, converged
+end
+
+export toy_g_d
+function toy_g_d(guess, func, n_x, tol, max_iters, α)
+    x = guess
+    k = 0
+    error = tol+1.0
+    path = [x]
+    converged = true
+    while k<max_iters && error>tol
+        update_step_grad = zero_sum_gradient(x, func, n_x)
+        update_step_hess = zero_sum_true_hessian(x, func, n_x)
+        static_array_update = regularization_g_d(update_step_grad, update_step_hess)
+        update = zeros(size(static_array_update))
+        for i in 1:size(static_array_update)[1]
+            update[i] = static_array_update[i][1]
+        end
+        update = α*update
+        x_new = x - update
+        push!(path, x_new)
+        error = norm(x_new - x)
+        x = x_new
+        k += 1
+    end
+    if k==max_iters
+        println("g_d did not converge!")
+        println("Error: ", error)
+        converged = false
+    end
+    return x, func(x[1], x[2]), k, path, converged
+end
+
+
+
+
 
 export g_d_GAN
 function g_d_GAN(guess, func, n_x, tol, max_iters, epoch)
