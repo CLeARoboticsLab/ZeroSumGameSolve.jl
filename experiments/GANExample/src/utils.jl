@@ -58,7 +58,9 @@ function plot_gan_example_comparison(;
 
     colors = [colorant"rgba(105, 105, 105, 0.65)", colorant"rgba(255, 145, 46, 0.65)", colorant"rgba(254, 38, 37, 0.55)", colorant"rgba(62, 173, 217, 0.65)"]
     colors_frame = [colorant"rgba(105, 105, 105, 1.0)", colorant"rgba(255, 145, 46, 1.0)", colorant"rgba(254, 38, 37, 1.0)", colorant"rgba(62, 173, 217, 1.0)"]
+    legend_elems = [[Makie.MarkerElement(color = colors[ii], marker=:circle, markersize = 60, strokecolor = colors_frame[ii])] for ii in 1:length(colors)]
 
+    
     fig = Makie.Figure(; size = (img_per_row * 475, length(solver_names) * 500), fontsize = 35)
     for ii in 1:length(solver_names)
         approach = solver_names[ii]
@@ -77,12 +79,15 @@ function plot_gan_example_comparison(;
                 strokecolor = colors_frame[1], label = "ground truth")
             Makie.density!(ax, generated_samples |> vec, color = colors[ii + 1], strokearound = true, strokewidth = 3, 
                 strokecolor = colors_frame[ii + 1], label = "GAN generated")
+            Makie.ylims!(ax, 0, 0.5)
             # Makie.axislegend(ax) 
         end
     end
     Makie.rowgap!(fig.layout, 1, Relative(0.1))
     Makie.rowgap!(fig.layout, 2, Relative(0.1))
     # Makie.save(directory * "gan_comparison_"*string(epoch_interval)*"_"*string(img_per_row)*".png", fig)
+    Makie.Legend(fig[0, 1:img_per_row-1], legend_elems, ["  GT (Ground Truth) ", "  GDA ", "  SecOND ", "  LSS "], framevisible = false, 
+        orientation = :horizontal, tellwidth = false, tellheight = true)
     Makie.save(directory * "gan_comparison.png", fig)
 end
 
