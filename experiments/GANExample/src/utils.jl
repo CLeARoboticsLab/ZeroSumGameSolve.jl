@@ -56,7 +56,8 @@ function plot_gan_example_comparison(;
         ii * epoch_interval
     end
 
-    colors = [colorant"rgba(105, 105, 105, 0.65)", colorant"rgba(254, 38, 37, 0.65)"]
+    colors = [colorant"rgba(105, 105, 105, 0.65)", colorant"rgba(255, 145, 46, 0.65)", colorant"rgba(254, 38, 37, 0.55)", colorant"rgba(62, 173, 217, 0.65)"]
+    colors_frame = [colorant"rgba(105, 105, 105, 1.0)", colorant"rgba(255, 145, 46, 1.0)", colorant"rgba(254, 38, 37, 1.0)", colorant"rgba(62, 173, 217, 1.0)"]
 
     fig = Makie.Figure(; size = (img_per_row * 475, length(solver_names) * 500), fontsize = 35)
     for ii in 1:length(solver_names)
@@ -73,9 +74,9 @@ function plot_gan_example_comparison(;
                 spinewidth=3, xlabelsize = 40, ylabelsize = 40)
             ax.titlesize = 45
             Makie.density!(ax, set_up.dataset |> vec, color = colors[1], strokearound = true, strokewidth = 3, 
-                strokecolor = colorant"rgba(105, 105, 105, 1.0)", label = "ground truth")
-            Makie.density!(ax, generated_samples |> vec, color = colors[2], strokearound = true, strokewidth = 3, 
-                strokecolor = colorant"rgba(254, 38, 37, 1.0)", label = "GAN generated")
+                strokecolor = colors_frame[1], label = "ground truth")
+            Makie.density!(ax, generated_samples |> vec, color = colors[ii + 1], strokearound = true, strokewidth = 3, 
+                strokecolor = colors_frame[ii + 1], label = "GAN generated")
             # Makie.axislegend(ax) 
         end
     end
