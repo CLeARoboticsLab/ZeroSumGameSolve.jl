@@ -1,0 +1,1 @@
+8 mode Gaussian mixture, ours with rmsprop with lr 1e-4, tanh

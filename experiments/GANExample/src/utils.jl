@@ -61,7 +61,7 @@ function plot_gan_example_comparison(;
     legend_elems = [[Makie.MarkerElement(color = colors[ii], marker=:circle, markersize = 60, strokecolor = colors_frame[ii])] for ii in 1:length(colors)]
 
     
-    fig = Makie.Figure(; size = (img_per_row * 475, length(solver_names) * 500), fontsize = 35)
+    fig = Makie.Figure(; size = (img_per_row * 475, length(solver_names) * 500 + 150), fontsize = 35)
     for ii in 1:length(solver_names)
         approach = solver_names[ii]
         mapped_approach = mapped_solver_names[ii]
