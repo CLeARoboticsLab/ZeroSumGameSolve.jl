@@ -1,6 +1,6 @@
 name = "GANExample"
 uuid = "5bfa7aa2-4fab-4b4f-97a7-01daa15f64fc"
-authors = ["xinjie-liu <xinjieliu98@163.com>"]
+authors = ["Anonymous"]
 version = "0.1.0"
 
 [deps]
