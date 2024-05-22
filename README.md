@@ -12,4 +12,12 @@ To run this code,
 6) To generate unconstrained toy example results: run "include("experiments\\GANExample\\src\\RandomToyExample.jl")".
 7) To generate constrained toy example results: run "include("experiments\\GANExample\\src\\TestConstrained1.jl")"
     and include("experiments\\GANExample\\src\\TestConstrained2.jl").
+8) For the GAN example:
+       * Go to the `GANExample` directory in the terminal: `cd experiments/GANExample/` and start Julia REPL with `julia`.
+       * Activate the environment via `]` and `activate .`.
+       * Precompile the package `using GANExample`.
+       * To run training for GDA: `GANExample.train_gan_standard()`.
+       * To run training for LSS: `GANExample.train_gan_zero_sum(; approach = "mazumdar")`.
+       * To run training for our approach: `GANExample.train_gan_zero_sum(; approach = "ours_optimizer")`.
+       * To reproduce the result plots: `GANExample.plot_gan_example_comparison()`.
 
