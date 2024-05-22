@@ -1,6 +1,7 @@
 using ZeroSumGameSolve
 using LinearAlgebra
 using Plots
+using Optimisers: Optimisers
 
 export mazumdar_ode
 function mazumdar_ode(point, p, t)
@@ -66,8 +67,8 @@ function simultaneous_gda(guess, func, tol, max_iters, α)
     return x, func(x[1], x[2]), k, path
 end
 
-export GAN_mazumdar_two_timescale_approximation
-function GAN_mazumdar_two_timescale_approximation(guess, func, n_x, tol, max_iters, epoch, gamma_1=0.004, gamma_2=0.005, xi_1=1e-4, xi_2=1e-4)
+export GAN_mazumdar_two_timescale_approximation!
+function GAN_mazumdar_two_timescale_approximation!(guess, func, n_x, tol, max_iters, epoch, gamma_1=0.004, gamma_2=0.005, xi_1=1e-4, xi_2=1e-3; xy_optimizer_setup, v_optimizer_setup)
     function zero_sum_gradient(grads, n_x)
         update_step_grad = vcat(grads[1:n_x], -1.0*grads[n_x+1:end])
         update_step_grad = SVector{size(update_step_grad)...}(update_step_grad)
@@ -109,14 +110,15 @@ function GAN_mazumdar_two_timescale_approximation(guess, func, n_x, tol, max_ite
         for i in 1:size(update)[1]
             arr_update[i] = update[i][1]
         end
-        x_new = x - gamma_1*(w_update + arr_update)
-        # x_new = x - gamma_1*([w[1][1], w[2][1]] + [update[1], update[2]])
+        xy_optimizer_setup, x_new = Optimisers.update!(xy_optimizer_setup, x, w_update + arr_update)
+        # x_new = x - gamma_1*(w_update + arr_update)
         update = -J_t*w
         arr_update = zeros(size(update))
         for i in 1:size(update)[1]
             arr_update[i] = update[i][1]
         end
-        v = v - 0.005*(J_t*J*v + λ*v +arr_update)
+        v_optimizer_setup, v = Optimisers.update!(v_optimizer_setup, v, J_t*J*v + λ*v +arr_update)
+        # v = v - 0.005*(J_t*J*v + λ*v +arr_update)
         error = norm(x_new - x)
         x = x_new
         push!(path, x)
