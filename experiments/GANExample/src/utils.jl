@@ -47,8 +47,8 @@ function plot_gan_example_comparison(;
     directory = "data/",
     epoch_interval = 3000,
     img_per_row = 5,
-    solver_names = ["gda", "ours_optimizer", "mazumdar"],
-    mapped_solver_names = ["GDA", "SecOND", "LSS"],
+    solver_names = ["gda", "mazumdar", "ours_optimizer"],
+    mapped_solver_names = ["GDA", "LSS", "SecOND"],
     set_up = construct_training_setup(),
 )
     ϵ = rand(set_up.rng, Distributions.Normal(), set_up.dims.dim_z, 10000) 
@@ -56,8 +56,8 @@ function plot_gan_example_comparison(;
         ii * epoch_interval
     end
 
-    colors = [colorant"rgba(105, 105, 105, 0.65)", colorant"rgba(255, 145, 46, 0.65)", colorant"rgba(254, 38, 37, 0.55)", colorant"rgba(62, 173, 217, 0.65)"]
-    colors_frame = [colorant"rgba(105, 105, 105, 1.0)", colorant"rgba(255, 145, 46, 1.0)", colorant"rgba(254, 38, 37, 1.0)", colorant"rgba(62, 173, 217, 1.0)"]
+    colors = [colorant"rgba(105, 105, 105, 0.65)", colorant"rgba(255, 145, 46, 0.65)", colorant"rgba(62, 173, 217, 0.65)", colorant"rgba(254, 38, 37, 0.55)"]
+    colors_frame = [colorant"rgba(105, 105, 105, 1.0)", colorant"rgba(255, 145, 46, 1.0)", colorant"rgba(62, 173, 217, 1.0)", colorant"rgba(254, 38, 37, 1.0)"]
     legend_elems = [[Makie.MarkerElement(color = colors[ii], marker=:circle, markersize = 60, strokecolor = colors_frame[ii])] for ii in 1:length(colors)]
 
     
@@ -86,7 +86,7 @@ function plot_gan_example_comparison(;
     Makie.rowgap!(fig.layout, 1, Relative(0.1))
     Makie.rowgap!(fig.layout, 2, Relative(0.1))
     # Makie.save(directory * "gan_comparison_"*string(epoch_interval)*"_"*string(img_per_row)*".png", fig)
-    Makie.Legend(fig[0, 1:img_per_row-1], legend_elems, ["  GT (Ground Truth) ", "  GDA ", "  SecOND ", "  LSS "], framevisible = false, 
+    Makie.Legend(fig[0, 1:img_per_row-1], legend_elems, ["  GT (ground truth) ", "  GDA (baseline) ", "  LSS (baseline) ", "  SecOND (ours) "], framevisible = false, 
         orientation = :horizontal, tellwidth = false, tellheight = true)
     Makie.save(directory * "gan_comparison.png", fig)
 end
