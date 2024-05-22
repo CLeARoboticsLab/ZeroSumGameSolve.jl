@@ -26,7 +26,7 @@ end
 export mazumdar_two_timescale_approximation
 function mazumdar_two_timescale_approximation(guess, func, tol, max_iters, α)
     x = guess
-    v = [1000., -1000.]
+    v = [100., 100.]
     k = 0
     error = tol+1.0
     path = [x]
@@ -125,4 +125,128 @@ function GAN_mazumdar_two_timescale_approximation!(guess, func, n_x, tol, max_it
         k = k + 1
     end
     return x, func(x), k, path
+end
+
+export cesp
+function cesp(guess, func, tol, max_iters, α)
+    x = guess
+    k = 0
+    error = tol+1.0
+    path = [x]
+    while k<max_iters && error>tol
+        w = symbolic_zero_gradient(x[1], x[2])
+        J = symbolic_zero_hessian(x[1], x[2])
+        v1 = 0.0
+        v2 = 0.0
+        if J[1, 1] < 0
+            v1 = 0.05*sign(w[1])*J[1, 1]
+        end
+        if J[2, 2] > 0
+            v2 = 0.05*sign(-1.0*w[2])*J[2, 2]
+        end
+        update = -1.0*w
+        x_new = x + α*update + [v1; v2]
+        error = norm(x_new - x)
+        x = x_new
+        push!(path, x)
+        k = k + 1
+    end
+    return x, func(x[1], x[2]), k, path
+end
+
+export toy_simultaneous_gda
+function toy_simultaneous_gda(guess, func, tol, max_iters, α)
+    x = guess
+    k = 0
+    error = tol+1.0
+    path = [x]
+    cont = true
+    while k<max_iters && error>tol && cont
+        w = zero_sum_gradient(x, twodimexample, 1)
+        update = -1.0*[w[1][1], w[2][1]]
+        x_new = x + α*update
+        error = norm(x_new - x)
+        x = x_new
+        if x[1] < -30 || x[2] < -30 || x[1] > 30 || x[2] > 30
+            cont = false
+        end
+        push!(path, x)
+        k = k + 1
+    end
+    converged = true
+    if !cont
+        println("Simultaneous GDA escaped bounds")
+    end
+    if k == max_iters
+        println("GDA Did not converge")
+        converged = false
+    end
+    return x, func(x[1], x[2]), k, path, converged
+end
+
+export toy_cesp
+function toy_cesp(guess, func, n_x, tol, max_iters, α)
+    x = guess
+    k = 0
+    error = tol+1.0
+    path = [x]
+    while k<max_iters && error>tol
+        w = zero_sum_gradient(x, twodimexample, n_x)
+        J = zero_sum_true_hessian(x, twodimexample, n_x)
+        v1 = 0.0
+        v2 = 0.0
+        if J[1, 1] < 0
+            v1 = 0.05*sign(w[1][1])*J[1, 1]
+        end
+        if J[2, 2] > 0
+            v2 = 0.05*sign(-1.0*w[2][1])*J[2, 2]
+        end
+        update = -1.0*[w[1][1], w[2][1]]
+        x_new = x + α*update + [v1; v2]
+        error = norm(x_new - x)
+        x = x_new
+        push!(path, x)
+        k = k + 1
+    end
+    converged = true
+    if k == max_iters
+        println("CESP Did not converge")
+        converged = false
+    end
+    return x, func(x[1], x[2]), k, path, converged
+end
+
+export toy_mazumdar
+function toy_mazumdar(guess, func, n_x, tol, max_iters, α)
+    x = guess
+    k = 0
+    error = tol+1.0
+    path = [x]
+    converged = true
+    while k<max_iters && error>tol 
+        w = zero_sum_gradient(x, func, n_x)
+        J = zero_sum_true_hessian(x, func, n_x)
+        w = [w[1][1], w[2][1]]
+        J = [J[1, 1] J[1, 2]; J[2, 1] J[2, 2]]
+        J_t = transpose(J)
+        λ = 0.0001*(1-exp(-1.0*((norm(w))^2)))*LinearAlgebra.I(2)
+        # typeof(v) = SVector{2, Vector{Float64}}
+        v = J_t*inv(J_t*J+λ)*J_t*w
+        # damping as descibed by mazumdar
+        g = exp(-0.0001*((norm(v))^2))
+        # term = -1.0*(w+g*v)
+        term = (w+g*v)
+        update = -1.0*term
+        x_new = x + α*update
+        error = norm(x_new - x)
+        x = x_new
+        push!(path, x)
+        k = k + 1
+    end
+    if k==max_iters
+        println("toy mazumdar did not converge!")
+        converged = false
+        # println("Error: ", error)
+    end
+    return x, func(x[1], x[2]), k, path, converged
 end

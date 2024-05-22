@@ -157,7 +157,7 @@ function new_regularization_solve_static_unconstrained_zero_sum(guess, func, n_x
         update_step_grad = zero_sum_gradient(x, func, n_x)
         update_step_hess = zero_sum_hessian(x, func, n_x)
         step = regularization(x, update_step_grad, update_step_hess)
-        α = alpha(x, func, step, update_step_grad, update_step_hess)
+        α = alpha_toy(x, func, step, update_step_grad, update_step_hess)
         static_array_update = α*step
         update = zeros(size(static_array_update))
         for i in 1:size(static_array_update)[1]
