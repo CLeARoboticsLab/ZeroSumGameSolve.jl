@@ -18,7 +18,7 @@ To run this code,
 
 * Activate the environment via `]` and `activate .`.
 
-* Precompile the package `using GANExample`.
+* Precompile the package: `using GANExample`.
 
 * To run training for GDA: `GANExample.train_gan_standard()`.
 
