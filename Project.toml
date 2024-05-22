@@ -1,6 +1,6 @@
-name = "ZeroSumGameSolve"
+ name = "ZeroSumGameSolve"
 uuid = "acbac2c1-af1f-4c5c-8072-533d2c216f7a"
-authors = ["Kushagra Gupta, Cade Armstrong, Dong Ho Lee, Jacob Levy, Fernando Palafox Escobedo, David Fridovich-Keil"]
+authors = ["Anonymized for submission"]
 version = "0.1.0"
 
 [deps]
