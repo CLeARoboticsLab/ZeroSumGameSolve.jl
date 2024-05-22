@@ -15,7 +15,7 @@ func = twodimexample
 
 max_val_x = 10
 min_val_x = -10
-n = 100
+n = 10000
 
 max_val_y = 10
 min_val_y = -10
@@ -90,12 +90,12 @@ plot_diff = [diff_iters_mazumdar,  diff_iters_simultaneous_gda, diff_iters_g_d]
 # data = [violin(y=plot_diff[y], name=name) for (y, name) in zip([1, 2, 3, 4, 5], names)]
 # plot(data..., title="Difference in Value between SecOND and other methods", xlabel="Method", ylabel="Difference in Value", legend=false)
 
+# violin(["\$\\mathrm{LSS}\$" "\$\\mathrm{GDA}\$" "\$g_d\$"], plot_diff, title="Difference in Iterations between \$\\texttt{SecOND}\$ and other methods", xlabel="\$\\mathrm{Method}\$", ylabel="\$\\mathrm{Iterations}_{\\texttt{SecOND}}-\\mathrm{Iterations}_{\\mathrm{Method}}\$", box_visible=true, titlefont=font(10), line=0, alpha = 0.65, legend=false)
+# boxplot!(["\$\\mathrm{LSS}\$" "\$\\mathrm{GDA}\$" "\$g_d\$"], plot_diff, title="Difference in Iterations between \$\\texttt{SecOND}\$ and other methods", xlabel="\$\\mathrm{Method}\$", ylabel="\$\\mathrm{Iterations}_{\\texttt{SecOND}}-\\mathrm{Iterations}_{\\mathrm{Method}}\$", box_visible=true, titlefont=font(10), line=(1, :black), fillrange=0, fill = (0.0,), box_width=0.1, legend=false)
 
-# violin(["Mazumdar", "Simultaneous GDA", "g_d", "New Regularization", "CESP"], plot_diff, title="Difference in Value between SecOND and other methods", xlabel="Method", ylabel="Difference in Value", legend=false)
-# boxplot!(["Mazumdar", "Simultaneous GDA", "g_d", "New Regularization", "CESP"], plot_diff, title="Difference in Value between SecOND and other methods", xlabel="Method", ylabel="Difference in Value", legend=false)
+violin(["\$\\mathrm{LSS}\$" "\$\\mathrm{GDA}\$" "\$\\mathrm{DND}\$"], plot_diff, xlabel="\$\\mathrm{Baseline\\,\\,Method}\$", ylabel="\$\\mathrm{Difference\\,\\,of\\,\\,Iterations\\,\\,with\\,\\,Baseline}\$", box_visible=true, titlefont=font(10), line=0, alpha = 0.65, legend=false)
+boxplot!(["\$\\mathrm{LSS}\$" "\$\\mathrm{GDA}\$" "\$\\mathrm{DND}\$"], plot_diff, xlabel="\$\\mathrm{Baseline\\,\\,Method}\$", ylabel="\$\\mathrm{Difference\\,\\,of\\,\\,Iterations\\,\\,with\\,\\,Baseline}\$", box_visible=true, titlefont=font(10), line=(1, :black), fillrange=0, fill = (0.0,), box_width=0.1, legend=false)
 
-violin(["\$\\mathrm{LSS}\$" "\$\\mathrm{GDA}\$" "\$g_d\$"], plot_diff, title="Difference in Iterations between \$\\texttt{SecOND}\$ and other methods", xlabel="\$\\mathrm{Method}\$", ylabel="\$\\mathrm{Iterations}_{\\texttt{SecOND}}-\\mathrm{Iterations}_{\\mathrm{Method}}\$", box_visible=true, titlefont=font(10), line=0, alpha = 0.65, legend=false)
-boxplot!(["\$\\mathrm{LSS}\$" "\$\\mathrm{GDA}\$" "\$g_d\$"], plot_diff, title="Difference in Iterations between \$\\texttt{SecOND}\$ and other methods", xlabel="\$\\mathrm{Method}\$", ylabel="\$\\mathrm{Iterations}_{\\texttt{SecOND}}-\\mathrm{Iterations}_{\\mathrm{Method}}\$", box_visible=true, titlefont=font(10), line=(1, :black), fillrange=0, fill = (0.0,), box_width=0.1, legend=false)
 
 end
 
