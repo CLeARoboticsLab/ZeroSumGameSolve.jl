@@ -1,15 +1,14 @@
 using ZeroSumGameSolve
 using Plots
-guess = [-10., -5.1]
-# guess = [-4.0, -9.0]
+guess = [-4.0, -9.0]
 tol = 10e-5
 ball_tol = 1e-2
 max_iters = 50000
 # α = 0.001
-α = 0.0001
+α = 0.01
 n_x = 1
 func = twodimexample
-sol, value, iters_taken, path = mazumdar_two_timescale_approximation(guess, func, tol, max_iters, α)
+sol, value, iters_taken, path = toy_mazumdar(guess, func, n_x, tol, max_iters, α)
 println("Mazumdar done")
 sol2, value2, iters_taken2, path2 = g_d(guess, func, n_x, tol, max_iters, α)
 println("g_d done")
@@ -17,9 +16,9 @@ sol3, value3, iters_taken3, path3 = SecOND(guess, func, n_x, tol, max_iters, α,
 println("SecOND done")
 sol4, value4, iters_taken4, path4 = toy_simultaneous_gda(guess, func, tol, max_iters, α)
 println("Simultaneous GDA done")
-sol5, value5, iters_taken5, path5 = new_regularization_solve_static_unconstrained_zero_sum(guess, func, n_x, tol, max_iters, α)
-println("New Regularization done")
-sol6, value6, iters_taken6, path6 = toy_cesp(guess, func, tol, max_iters, α)
+# sol5, value5, iters_taken5, path5 = new_regularization_solve_static_unconstrained_zero_sum(guess, func, n_x, tol, max_iters, α)
+# println("New Regularization done")
+sol6, value6, iters_taken6, path6 = toy_cesp(guess, func, n_x, tol, max_iters, α)
 print(typeof(path))
 println("Mazumdar done")
 println("Solution: ", sol)
@@ -41,11 +40,11 @@ println("Solution: ", sol4)
 println("Value: ", value4)
 println("Iterations: ", iters_taken4)
 println("\n")
-println("New Regularization done")
-println("Solution: ", sol5)
-println("Value: ", value5)
-println("Iterations: ", iters_taken5)
-println("\n")
+# println("New Regularization done")
+# println("Solution: ", sol5)
+# println("Value: ", value5)
+# println("Iterations: ", iters_taken5)
+# println("\n")
 println("CESP done")
 println("Solution: ", sol6)
 println("Value: ", value6)
@@ -57,9 +56,13 @@ ylims = [-20, 20]
 xs = range(xlims...; length = 100)
 ys = range(ylims...; length = 100)
 plt = contourf(xs, ys, twodimexample; color = :viridis)
-plot!([x[1] for x in path], [x[2] for x in path], label="Mazumdar", show=true)
-plot!([x[1] for x in path2], [x[2] for x in path2], label="g_d", show=true)
-plot!([x[1] for x in path3], [x[2] for x in path3], label="SecOND", show=true)
-plot!([x[1] for x in path4], [x[2] for x in path4], label="Simultaneous GDA", show=true)
-plot!([x[1] for x in path5], [x[2] for x in path5], label="New Regularization", show=true)
-plot!([x[1] for x in path6], [x[2] for x in path6], label="CESP", show=true)
+nashpt = [-12.119566592276078, -8.50939890876437]
+plot!([x[1] for x in path], [x[2] for x in path], label="LSS", show=true)
+plot!([x[1] for x in path2], [x[2] for x in path2], label="\$\\texttt{DND}\$", show=true)
+plot!([x[1] for x in path3], [x[2] for x in path3], label="\$\\texttt{SecOND}\$", show=true)
+plot!([x[1] for x in path4], [x[2] for x in path4], label="GDA", show=true)
+# plot!([x[1] for x in path5], [x[2] for x in path5], label="New Regularization", show=true)
+plot!([x[1] for x in path6], [x[2] for x in path6], label="CESP", color=:red, show=true)
+scatter!([nashpt[1]], [nashpt[2]], color=:green, label="Local Nash Equilibrium", markershape=:star5, markersize=12)
+xlims!(-20, 0)
+ylims!(-20, 0)
