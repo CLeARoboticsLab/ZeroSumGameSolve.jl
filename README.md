@@ -12,8 +12,8 @@ To run this code,
 6) To generate unconstrained toy example results: run `include("experiments\\ToyExample\\src\\RandomToyExample.jl")`.
 7) To generate constrained toy example results: run `include("experiments\\ToyExample\\src\\TestConstrained1.jl")`
     and `include("experiments\\ToyExample\\src\\TestConstrained2.jl")`.
-   To generate additional result given in appendix: run `include(experiments\\ToyExample\\src\\ToyExample.jl)`.
-   To generate plot of CESP diverging: run `include(experiments\\ToyExample\\src\\TestCESP.jl)`.
+   To generate additional result given in appendix: run `include("experiments\\ToyExample\\src\\ToyExample.jl")`.
+   To generate plot of CESP diverging: run `include("experiments\\ToyExample\\src\\TestCESP.jl")`.
 8) For the GAN example:
 
 * Go to the `GANExample` directory in the terminal: `cd experiments/GANExample/` and start Julia REPL with `julia`.
