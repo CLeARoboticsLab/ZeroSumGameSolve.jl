@@ -1,13 +1,14 @@
 #================================= Train GAN using our zero sum solver ============================# 
 
 function train_zero_sum()
+    train_gan_zero_sum(; approach = "ours_optimizer")
     train_gan_zero_sum(; approach = "mazumdar")
-    train_gan_zero_sum(; approach = "ours")
 end
 
 function train_gan_zero_sum(; set_up = construct_training_setup(), training_log_sample_size = 1000, approach = "ours")
     # generator = JLD2.load("data/generator.jld2")["generator"]
     # discriminator = JLD2.load("data/discriminator.jld2")["discriminator"]
+    # losses = JLD2.load("data/losses.jld2")["losses"]
     gan = setup_gan(set_up)
     generator = gan.generator
     discriminator = gan.discriminator
@@ -18,6 +19,12 @@ function train_gan_zero_sum(; set_up = construct_training_setup(), training_log_
     generator_optimizer_setup = Optimisers.setup(set_up.training_config.optimizer, params_generator) # generator optimizer
     discriminator_optimizer_setup = Optimisers.setup(set_up.training_config.optimizer, params_discriminator) # discriminator optimizer
     losses = Vector{Float64}()
+    if approach == "mazumdar"
+        xy_optimizer_setup = Optimisers.setup(Optimisers.RMSProp(2e-4, 0.9, 1e-8), vcat(params_generator, params_discriminator))
+        v_optimizer_setup = Optimisers.setup(Optimisers.RMSProp(1e-5, 0.9, 1e-8), zeros(vcat(params_generator, params_discriminator) |> length))
+    elseif approach == "ours_optimizer"
+        x_optimizer_setup = Optimisers.setup(Optimisers.RMSProp(2e-4, 0.9, 1e-8), vcat(params_generator, params_discriminator))
+    end
     for epoch in 1:set_up.training_config.n_epochs
         println("Epoch $epoch")
         ii = 0
@@ -33,8 +40,10 @@ function train_gan_zero_sum(; set_up = construct_training_setup(), training_log_
             println(epoch, " ", ii)
             if approach == "ours"
                 zero_sum_sol = ZeroSumGameSolve.new_reg_GAN(params_gan, loss, dim_params_generator, 1e-7, 1, epoch)
+            elseif approach == "ours_optimizer"
+                zero_sum_sol = ZeroSumGameSolve.new_reg_GAN_optimizer!(params_gan, loss, dim_params_generator, 1e-7, 1, epoch; x_optimizer_setup)
             elseif approach == "mazumdar"
-                zero_sum_sol = ZeroSumGameSolve.GAN_mazumdar_two_timescale_approximation(params_gan, loss, dim_params_generator, 1e-7, 1, epoch)
+                zero_sum_sol = ZeroSumGameSolve.GAN_mazumdar_two_timescale_approximation!(params_gan, loss, dim_params_generator, 1e-7, 1, epoch; xy_optimizer_setup, v_optimizer_setup)
             end
             # direction_generator = deepcopy(zero_sum_sol[1][1:dim_params_generator] - params_generator)
             # direction_discriminator = deepcopy(zero_sum_sol[1][(dim_params_generator + 1):end] - params_discriminator)
@@ -169,7 +178,7 @@ function construct_training_setup()
 
     training_config = (;
         optimizer = Optimisers.Adam(0.0001, (0.9, 0.999), 1.0e-8),
-        n_epochs = 10000,
+        n_epochs = 30000,
         batchsize = 128,
         n_datapoints = 10_000,
         device = cpu,
@@ -179,7 +188,7 @@ function construct_training_setup()
     dims = (; dim_x = 1, dim_hidden = 8, dim_z = 1) # dim_x: data dimension dim_z: 
     # construct dataset
     # dataset = randn(rng, dims.dim_z, training_config.n_datapoints) |> decoder_gt |> training_config.device
-    sample_distribution = MixtureModel(Normal, [(-3, 1), (3, 1)])
+    sample_distribution = MixtureModel(Normal, [(-3, 0.2), (-1, 0.2), (1, 0.2), (3, 0.2)])
     dataset = rand(rng, sample_distribution, dims.dim_z, training_config.n_datapoints) |> training_config.device
     data_batch_iterator = Flux.Data.DataLoader(dataset; training_config.batchsize, shuffle = true, rng)
 
@@ -188,13 +197,13 @@ end
 
 function setup_gan(set_up = construct_training_setup(); generator = nothing, discriminator = nothing)
     discriminator = isnothing(discriminator) ? Chain(
-        Dense(set_up.dims.dim_x, set_up.dims.dim_hidden, relu; init = glorot_uniform(set_up.rng)),
-        Dense(set_up.dims.dim_hidden, set_up.dims.dim_hidden, relu; init = glorot_uniform(set_up.rng)),
+        Dense(set_up.dims.dim_x, set_up.dims.dim_hidden, tanh; init = glorot_uniform(set_up.rng)),
+        Dense(set_up.dims.dim_hidden, set_up.dims.dim_hidden, tanh; init = glorot_uniform(set_up.rng)),
         Dense(set_up.dims.dim_hidden, 1, sigmoid; init = glorot_uniform(set_up.rng)),
     ) : discriminator
     generator = isnothing(generator) ? Chain(
-        Dense(set_up.dims.dim_z, set_up.dims.dim_hidden, relu; init = glorot_uniform(set_up.rng)),
-        Dense(set_up.dims.dim_hidden, set_up.dims.dim_hidden, relu; init = glorot_uniform(set_up.rng)),
+        Dense(set_up.dims.dim_z, set_up.dims.dim_hidden, tanh; init = glorot_uniform(set_up.rng)),
+        Dense(set_up.dims.dim_hidden, set_up.dims.dim_hidden, tanh; init = glorot_uniform(set_up.rng)),
         Dense(set_up.dims.dim_hidden, set_up.dims.dim_x; init = glorot_uniform(set_up.rng)),
     ) : generator
     GAN(set_up.dims.dim_z, generator, discriminator) |> set_up.training_config.device
