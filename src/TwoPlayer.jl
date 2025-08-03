@@ -266,6 +266,9 @@ function g_d(guess, func, n_x, tol, max_iters, α)
     k = 0
     error = tol+1.0
     path = [x]
+    update_step_grad = zeros(2)
+    update_step_hess = zeros(2, 2)
+    update = zeros(2)
     while k<max_iters && error>tol
         update_step_grad = zero_sum_gradient(x, func, n_x)
         update_step_hess = zero_sum_true_hessian(x, func, n_x)
@@ -285,6 +288,10 @@ function g_d(guess, func, n_x, tol, max_iters, α)
         println("g_d did not converge!")
         println("Error: ", error)
     end
+    println("update_step_grad: ", update_step_grad)
+    println("update_step_hess: ", update_step_hess)
+    println("update: ", update)
+    println("assumption", transpose(update_step_hess)*update_step_grad)
     return x, func(x[1], x[2]), k, path 
 end
 

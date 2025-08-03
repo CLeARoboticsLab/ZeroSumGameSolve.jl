@@ -1,4 +1,4 @@
- name = "ZeroSumGameSolve"
+name = "ZeroSumGameSolve"
 uuid = "acbac2c1-af1f-4c5c-8072-533d2c216f7a"
 authors = ["Anonymized for submission"]
 version = "0.1.0"
@@ -23,6 +23,7 @@ Symbolics = "0c5d862f-8b57-4792-8d23-62f2024744c7"
 Zygote = "e88e6eb3-aa80-5325-afca-941959d7151f"
 
 [compat]
+Revise = "3.7.2"
 julia = "1"
 
 [extras]
