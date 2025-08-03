@@ -1,5 +1,10 @@
 module ZeroSumGameSolve
 
+# TODO: isolate all deps here
+# TODO: move tests into test/
+# TODO: rename all non-module files "file_name.jl" instead of "FileName.jl"
+# TODO: function names are "FunctionName" if constructors or structs, and "function_name" otherwise, or "function_name!" if they modify any arguments (usually the first argument)
+
 # Write your package code here.
 include("LineSearch.jl")
 include("ObjectiveFunctions.jl")
