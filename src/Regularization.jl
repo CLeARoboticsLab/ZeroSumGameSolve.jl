@@ -39,7 +39,7 @@ function regularization_g_d(update_step_grad, update_step_hess)
     if update_step_hess[1, 1] > 0
         b1 = 1.0
     end
-    if update_step_hess[2, 2] < 0
+    if update_step_hess[2, 2] > 0
         b2 = -1.0
     end
     beta = [b1 0.0; 0.0 b2]
